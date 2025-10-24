@@ -56,8 +56,8 @@ jobs:
 
       - name: Import database schema
         run: |
-          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < sql/database_setup.sql
-          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < sql/seed.sql
+          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < Acces_BD/sql/database_setup.sql
+          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < Acces_BD/sql/seed.sql
 
       - name: Test PHP to MySQL connection
         run: php Acces_BD/test.php
