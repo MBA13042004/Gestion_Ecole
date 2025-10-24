@@ -1,0 +1,66 @@
+name: PHP CI with MySQL
+
+on:
+  push:
+    branches: 
+      - main
+      - dev
+  pull_request:
+    branches: 
+      - main
+      - dev
+
+jobs:
+  php-mysql-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: gestion_ecole
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, mysqli, pdo_mysql
+          coverage: none
+
+      - name: Configure environment file
+        run: |
+          echo "serveur=127.0.0.1" > Acces_BD/.env
+          echo "utilisateur=root" >> Acces_BD/.env
+          echo "password=root" >> Acces_BD/.env
+          echo "db_name=gestion_ecole" >> Acces_BD/.env
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist || true
+
+      - name: Wait for MySQL service
+        run: |
+          echo "⏳ Waiting for MySQL to be ready..."
+          sleep 20
+
+      - name: Import database schema
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < sql/database_setup.sql
+          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < sql/seed.sql
+
+      - name: Test PHP to MySQL connection
+        run: php Acces_BD/test.php
+
+      - name: CI completed
+        run: echo "✅ CI pipeline finished successfully!"
