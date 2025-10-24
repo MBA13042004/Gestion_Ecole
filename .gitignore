@@ -1,1 +1,46 @@
-*/.env
+# Fichiers de configuration sensibles
+.env
+*.env
+config/database.php
+
+# Fichiers de logs
+*.log
+logs/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Fichiers de cache
+cache/
+*.cache
+
+# Fichiers de session
+sessions/
+
+# Fichiers d'upload
+uploads/
+files/
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+
+# Fichiers d'IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Fichiers de dépendances
+vendor/
+node_modules/
+
+# Fichiers de base de données
+*.sqlite
+*.db
+
+# Fichiers de configuration locale
+local_config.php

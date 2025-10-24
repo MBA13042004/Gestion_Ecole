@@ -5,9 +5,9 @@ function Connect()
     $env = parse_ini_file(__DIR__ . "/.env");
 
     // Récupérer les paramètres
-    $server = $env['Serveur'];
-    $user = $env['Utilisateur'];
-    $password = $env['Password'];
+    $server = $env['serveur'];
+    $user = $env['utilisateur'];
+    $password = $env['password'];
     $dbname = $env['db_name'];
 
     // Créer la connexion
