@@ -2,13 +2,13 @@ name: PHP CI with MySQL
 
 on:
   push:
-    branches: 
+    branches:
       - main
-      - dev
+      - develop
   pull_request:
-    branches: 
+    branches:
       - main
-      - dev
+      - develop
 
 jobs:
   php-mysql-tests:
@@ -19,7 +19,6 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: gestion_ecole
         ports:
           - 3306:3306
         options: >-
@@ -29,9 +28,11 @@ jobs:
           --health-retries=5
 
     steps:
-      - name: Checkout code
+      # 🧩 Étape 1 : Récupération du code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 🧩 Étape 2 : Installation de PHP 8.1 avec extensions nécessaires
       - name: Setup PHP environment
         uses: shivammathur/setup-php@v2
         with:
@@ -39,28 +40,48 @@ jobs:
           extensions: mbstring, mysqli, pdo_mysql
           coverage: none
 
-      - name: Configure environment file
+      # 🧩 Étape 3 : Création du fichier .env pour la connexion MySQL
+      - name: Create environment file
         run: |
           echo "serveur=127.0.0.1" > Acces_BD/.env
           echo "utilisateur=root" >> Acces_BD/.env
           echo "password=root" >> Acces_BD/.env
           echo "db_name=gestion_ecole" >> Acces_BD/.env
 
-      - name: Install Composer dependencies
+      # 🧩 Étape 4 : Installation de dépendances Composer (si présent)
+      - name: Install dependencies
         run: composer install --no-interaction --prefer-dist || true
 
-      - name: Wait for MySQL service
+      # 🧩 Étape 5 : Attente du démarrage de MySQL
+      - name: Wait for MySQL
         run: |
           echo "⏳ Waiting for MySQL to be ready..."
-          sleep 20
+          sleep 25
 
-      - name: Import database schema
+      # 🧩 Étape 6 : Réinitialisation et importation de la base
+      - name: Reset and import database schema
         run: |
-          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < Acces_BD/sql/database_setup.sql
-          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < Acces_BD/sql/seed.sql
+          echo "⚙️ Resetting database..."
+          mysql -h 127.0.0.1 -P 3306 -u root -proot -e "DROP DATABASE IF EXISTS gestion_ecole; CREATE DATABASE gestion_ecole;"
+          echo "📦 Importing structure..."
+          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < sql/database_setup.sql
+          echo "📊 Importing seed data..."
+          mysql -h 127.0.0.1 -P 3306 -u root -proot gestion_ecole < sql/seed.sql
 
-      - name: Test PHP to MySQL connection
+      # 🧩 Étape 7 : Vérifier la connexion PHP <-> MySQL
+      - name: Run PHP connection test
         run: php Acces_BD/test.php
 
-      - name: CI completed
+      # 🧩 Étape 8 : (Optionnel) Lancer tous les tests PHP dans /tests
+      - name: Run PHP unit tests (optional)
+        if: ${{ hashFiles('tests/*.php') != '' }}
+        run: |
+          echo "🧪 Running PHP tests..."
+          for test in tests/*.php; do
+            echo "➡️  Running $test"
+            php "$test"
+          done
+
+      # 🧩 Étape 9 : Validation finale
+      - name: Workflow completed
         run: echo "✅ CI pipeline finished successfully!"
