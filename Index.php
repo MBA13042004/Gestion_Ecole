@@ -1,6 +1,6 @@
 <?php
-// Inclure l'en-tête
-include('public/header.php');
+$page_title = "Connexion";
+include('IHM/public/header.php');
 ?>
 
 <!-- Page d'accueil principale -->
@@ -27,8 +27,8 @@ include('public/header.php');
 
 <?php
 // Inclure la barre de navigation
-include('public/nav_barre.php');
+include('IHM/public/nav_barre.php');
 
 // Inclure le pied de page
-include('public/footer.php');
+include('IHM/public/footer.php');
 ?>
