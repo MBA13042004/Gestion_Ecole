@@ -98,14 +98,14 @@ jobs:
 
       - name: 🐳 Démarrage des conteneurs
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 30  # Attendre que les services démarrent
 
       - name: 🔍 Vérification des conteneurs
         run: |
-          docker-compose ps
-          docker-compose logs web
-          docker-compose logs db
+          docker compose ps
+          docker compose logs web
+          docker compose logs db
 
       - name: 🧪 Test de santé de l'application
         run: |
@@ -114,7 +114,7 @@ jobs:
 
       - name: 🧹 Nettoyage
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v
 
   # Job 4: Déploiement (optionnel - à activer selon besoin)
   deploy:
