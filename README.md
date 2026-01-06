@@ -7,7 +7,7 @@ Application web de gestion scolaire développée en PHP/MySQL avec une interface
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.1-7952B3?logo=bootstrap&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 
-## ✨ Fonctionnalités Ndaaaaaaaaaaaaaaaaaaaaaaaaa
+## ✨ Fonctionnalités Ndaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 ### 🔐 Système d'Authentification
 - **3 rôles** : Administrateur, Professeur, Étudiant
