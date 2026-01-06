@@ -1,5 +1,12 @@
 <?php
 require_once '../Acces_BD/session_config.php';
+
+// Rediriger vers la page de login si l'utilisateur n'est pas connecté
+if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
+    header('Location: ../Index.php');
+    exit();
+}
+
 $page_title = "Accueil";
 include('public/header.php');
 include('public/nav_barre.php');
