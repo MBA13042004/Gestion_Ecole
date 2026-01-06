@@ -7,7 +7,7 @@
 - 2 GB RAM minimum
 - Ports disponibles: 8080 (Web), 3307 (MySQL), 8081 (phpMyAdmin)
 
-## 🚀 Démarrage Rapide
+## 🚀 Démarrage Rapide Ndaaa
 
 ### 1. Cloner le projet
 ```bash
