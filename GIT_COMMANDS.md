@@ -7,7 +7,7 @@
 git init
 
 # Configurer l'utilisateur (si pas déjà fait)
-git config --global user.name "MBA"
+git config --global user.name "MBAa"
 git config --global user.email "votre.email@example.com"
 
 # Ajouter tous les fichiers au staging
