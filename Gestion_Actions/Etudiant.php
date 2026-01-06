@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../Acces_BD/session_config.php';
 require_once '../Acces_BD/Etudiant.php';
 
 // Vérifier la connexion
@@ -9,9 +9,9 @@ if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
     exit();
 }
 
-// Vérifier les permissions
-if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'professeur') {
-    $_SESSION['message'] = 'Vous n\'avez pas les permissions pour effectuer cette action.';
+// Vérifier les permissions - Seuls les administrateurs peuvent gérer les étudiants
+if ($_SESSION['role'] !== 'admin') {
+    $_SESSION['message'] = 'Seuls les administrateurs peuvent gérer les étudiants.';
     header('Location: ../IHM/accueil.php');
     exit();
 }

@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Service Web - PHP/Apache
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gestion_ecole_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=gestion_ecole
+      - DB_USERNAME=ecole_user
+      - DB_PASSWORD=ecole_password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - gestion_ecole_network
+
+  # Service Base de Données - MySQL
+  db:
+    image: mysql:8.0
+    container_name: gestion_ecole_db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: gestion_ecole
+      MYSQL_USER: ecole_user
+      MYSQL_PASSWORD: ecole_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database_setup.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database_update_userlinks.sql:/docker-entrypoint-initdb.d/02-update.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gestion_ecole_network
+
+  # Service phpMyAdmin (optionnel - pour le développement)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: gestion_ecole_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+      UPLOAD_LIMIT: 100M
+    depends_on:
+      - db
+    networks:
+      - gestion_ecole_network
+
+# Volumes persistants
+volumes:
+  mysql_data:
+    driver: local
+
+# Réseau
+networks:
+  gestion_ecole_network:
+    driver: bridge

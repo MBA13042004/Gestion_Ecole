@@ -33,6 +33,20 @@ class Etudiant {
         return null;
     }
 
+    // Afficher un étudiant par user_id (pour le profil personnel)
+    public function afficherParUserId($user_id) {
+        $sql = "SELECT * FROM etudiants WHERE user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        return null;
+    }
+
     // Ajouter un nouvel étudiant
     public function ajouter($nom, $prenom, $email, $telephone, $date_naissance, $niveau) {
         $sql = "INSERT INTO etudiants (nom, prenom, email, telephone, date_naissance, niveau) VALUES (?, ?, ?, ?, ?, ?)";

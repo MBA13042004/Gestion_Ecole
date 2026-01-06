@@ -23,7 +23,6 @@
                         </div>
                         <div class="col-md-6 text-end">
                             <?php
-                            session_start();
                             if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']) {
                                 echo '<span class="badge bg-success me-2">';
                                 echo '<i class="fas fa-user me-1"></i>';

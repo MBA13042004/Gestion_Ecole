@@ -33,6 +33,20 @@ class Professeur {
         return null;
     }
 
+    // Afficher un professeur par user_id (pour le profil personnel)
+    public function afficherParUserId($user_id) {
+        $sql = "SELECT * FROM professeurs WHERE user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        return null;
+    }
+
     // Ajouter un nouveau professeur
     public function ajouter($nom, $prenom, $email, $telephone, $specialite, $date_embauche) {
         $sql = "INSERT INTO professeurs (nom, prenom, email, telephone, specialite, date_embauche) VALUES (?, ?, ?, ?, ?, ?)";

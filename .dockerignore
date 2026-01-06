@@ -1,0 +1,40 @@
+# Ignorer les fichiers et répertoires inutiles
+.git
+.gitignore
+.github
+.vscode
+.idea
+
+# Documentation
+README.md
+*.md
+
+# Fichiers Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Fichiers de développement
+.env.example
+.editorconfig
+
+# Logs et caches
+*.log
+logs/
+cache/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dépendances (si composer est utilisé)
+vendor/
+node_modules/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

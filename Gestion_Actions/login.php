@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../Acces_BD/session_config.php';
 require_once '../Acces_BD/Login.php';
 
 $login = new Login();

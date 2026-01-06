@@ -1,0 +1,160 @@
+name: CI/CD - Gestion École
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  # Job 1: Tests et Validation
+  test:
+    name: Tests & Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli, pdo_mysql, mbstring, xml, gd
+          coverage: none
+
+      - name: ✅ Validation de la syntaxe PHP
+        run: |
+          find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \; | grep -v "No syntax errors"
+          if [ $? -eq 0 ]; then
+            echo "❌ Erreurs de syntaxe détectées"
+            exit 1
+          else
+            echo "✅ Aucune erreur de syntaxe"
+          fi
+
+      - name: 📊 Vérification de la structure du projet
+        run: |
+          echo "Vérification des répertoires principaux..."
+          [ -d "IHM" ] && echo "✅ IHM" || exit 1
+          [ -d "Acces_BD" ] && echo "✅ Acces_BD" || exit 1
+          [ -d "Gestion_Actions" ] && echo "✅ Gestion_Actions" || exit 1
+          [ -f "Index.php" ] && echo "✅ Index.php" || exit 1
+          [ -f "database_setup.sql" ] && echo "✅ database_setup.sql" || exit 1
+
+  # Job 2: Build Docker Image
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📝 Extraire metadata Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+
+      - name: 🏗️ Build et Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Job 3: Test Docker Compose
+  docker-test:
+    name: Test Docker Compose
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Démarrage des conteneurs
+        run: |
+          docker-compose up -d
+          sleep 30  # Attendre que les services démarrent
+
+      - name: 🔍 Vérification des conteneurs
+        run: |
+          docker-compose ps
+          docker-compose logs web
+          docker-compose logs db
+
+      - name: 🧪 Test de santé de l'application
+        run: |
+          curl -f http://localhost:8080 || exit 1
+          echo "✅ Application accessible"
+
+      - name: 🧹 Nettoyage
+        if: always()
+        run: docker-compose down -v
+
+  # Job 4: Déploiement (optionnel - à activer selon besoin)
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [test, build, docker-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://votre-domaine.com
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Déploiement
+        run: |
+          echo "🚀 Déploiement vers la production..."
+          echo "⚠️ Configurez votre méthode de déploiement ici"
+          # Exemple: SSH vers serveur, Docker Swarm, Kubernetes, etc.
+
+      - name: ✅ Notification de succès
+        if: success()
+        run: |
+          echo "✅ Déploiement réussi!"
+
+  # Job 5: Notification
+  notify:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [test, build, docker-test]
+    if: always()
+    
+    steps:
+      - name: 📢 Résumé du workflow
+        run: |
+          echo "## 📊 Résumé du CI/CD" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branche**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Auteur**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Test**: ${{ needs.docker-test.result }}" >> $GITHUB_STEP_SUMMARY
