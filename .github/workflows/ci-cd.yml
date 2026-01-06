@@ -26,13 +26,11 @@ jobs:
 
       - name: ✅ Validation de la syntaxe PHP
         run: |
-          find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \; | grep -v "No syntax errors"
-          if [ $? -eq 0 ]; then
-            echo "❌ Erreurs de syntaxe détectées"
-            exit 1
-          else
-            echo "✅ Aucune erreur de syntaxe"
-          fi
+          echo "Vérification de la syntaxe PHP..."
+          find . -name "*.php" -not -path "./vendor/*" -not -path "./.git/*" | while read file; do
+            php -l "$file" || exit 1
+          done
+          echo "✅ Aucune erreur de syntaxe détectée"
 
       - name: 📊 Vérification de la structure du projet
         run: |
