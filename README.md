@@ -14,7 +14,7 @@ Application web de gestion scolaire développée en PHP/MySQL avec une interface
 - Interface de connexion ultra-moderne avec animations
 - Sessions sécurisées
 
-### 👥 Gestion par Rôle hhhhh
+### 👥 Gestion par Rôle hhhhhaaaa
 
 #### Administrateur
 - ✅ CRUD complet des étudiants
